@@ -41,14 +41,26 @@ def estimate_arterial_oxygen(
         pao2 - oxygen_gradient
     )
 
-pao2 = calculate_alveolar_oxygen(
-    0.21, 760, 47, 40, 0.8
-)
+def calculate_paco2(
+    respiratory_rate,
+    tidal_volume,
+    dead_space=150,
+    co2_production=0.2
+):
 
-pao2_arterial = estimate_arterial_oxygen(pao2)
+    alveolar_ventilation = (
+        (tidal_volume - dead_space)
+        * respiratory_rate / 1000
+    )
 
-spo2 = oxygen_saturation(pao2_arterial)
+    if alveolar_ventilation <= 0:
+        raise ValueError("Alveolar ventilation must be positive")
 
-print("Alveolar PO2:", pao2)
-print("Estimated arterial PO2:", pao2_arterial)
-print("Estimated saturation:", spo2)
+    paco2 = (
+        863 * co2_production /
+        alveolar_ventilation
+    )
+
+    return paco2
+
+

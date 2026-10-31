@@ -47,18 +47,41 @@ class HeartRateModel:
 #Windkessel model for simulating arterial pressure dynamics
 class WindkesselModel:
 
-    def __init__(
+    def __init__(self):
+
+        self.pressure = 80.0
+
+        self.compliance = 1.5
+
+        self.resistance = 1.0
+
+        self.time = 0.0
+
+    def step(
         self,
-        compliance=1.5,
-        resistance=15.0,
-        initial_pressure=80.0
+        heart_rate,
+        stroke_volume,
+        dt
     ):
 
-        self.compliance = compliance
-        self.resistance = resistance
-        self.pressure = initial_pressure
+        period = 60 / heart_rate
 
-    def step(self, inflow, dt):
+        self.time += dt
+
+        phase = self.time % period
+
+        ejection_time = min(
+            0.30,
+            period * 0.40
+        )
+
+        if phase < ejection_time:
+
+            inflow = stroke_volume / ejection_time
+
+        else:
+
+            inflow = 0.0
 
         outflow = (
             self.pressure / self.resistance

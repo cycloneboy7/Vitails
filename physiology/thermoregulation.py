@@ -6,7 +6,7 @@ class ThermoregulationModel:
 
         self.thermal_capacity = 3500.0
 
-        self.metabolic_heat = 80.0
+        self.metabolic_heat = 39.0
 
     def step(
         self,

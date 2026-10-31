@@ -8,13 +8,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from physiology.oxygen_transport import oxygen_saturation
 from signals.ecg import ECGGenerator
 
-
-def test_oxygen_saturation():
-
-    high = oxygen_saturation(100)
-    low = oxygen_saturation(40)
-
-    assert high > low
+from config.parameters import SimulationConfig
+from physiology.engine import PhysiologicalEngine
 
 
 def test_ecg_generation():
@@ -42,3 +37,54 @@ def test_patient_sampling():
     samples = int(duration * sampling_rate)
 
     assert samples == 2500
+
+
+
+
+def test_engine_initialization():
+
+    config = SimulationConfig()
+
+    engine = PhysiologicalEngine(config)
+
+    assert engine.state.heart_rate == 72.0
+
+
+def test_simulation_time():
+
+    config = SimulationConfig()
+
+    engine = PhysiologicalEngine(config)
+
+    engine.step()
+
+    assert np.isclose(
+        engine.simulation_time,
+        config.time_step
+    )
+
+
+def test_signal_generation():
+
+    config = SimulationConfig()
+
+    engine = PhysiologicalEngine(config)
+
+    result = engine.step()
+
+    assert np.isfinite(result["ecg"])
+
+    assert np.isfinite(result["ppg"])
+
+    assert np.isfinite(result["respiration"])
+
+
+def test_oxygen_saturation_range():
+
+    config = SimulationConfig()
+
+    engine = PhysiologicalEngine(config)
+
+    result = engine.step()
+
+    assert 0 <= result["spo2"] <= 100
